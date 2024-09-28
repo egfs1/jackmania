@@ -1,0 +1,119 @@
+class GameLabels {
+    field string aKey;
+    field string sKey;
+    field string dKey;
+    field string fKey;
+    field string score;
+    field string finalScore;
+    field string highestScore;
+    field string newHighscore;
+    field string gameOver;
+    field string selectLevel;
+    field string easy;
+    field string normal;
+    field string hard;
+    field string impossible;
+    field string easyMenu;
+    field string normalMenu;
+    field string hardMenu;
+    field string impossibleMenu;
+
+    constructor GameLabels new() {
+        let aKey = "A";
+        let sKey = "S";
+        let dKey = "D";
+        let fKey = "F";
+        let score = "Score:";
+        let finalScore = "Final Score:";
+        let highestScore = "Highest Score:";
+        let newHighscore = "(new)";
+        let gameOver = "Game Over!";
+        let selectLevel = "select the desired level";
+        let easy = "Easy";
+        let normal = "Normal";
+        let hard = "Hard";
+        let impossible = "Impossible";
+        let easyMenu = "1. Easy";
+        let normalMenu = "2. Normal";
+        let hardMenu = "3. Hard";
+        let impossibleMenu = "4. Impossible";
+        return this;
+    }
+
+    method string getAKey() {
+        return aKey;
+    }
+
+    method string getSKey() {
+        return sKey;
+    }
+
+    method string getDKey() {
+        return dKey;
+    }
+
+    method string getFKey() {
+        return fKey;
+    }
+
+    method string getScore() {
+        return score;
+    }
+
+    method string getFinalScore() {
+        return finalScore;
+    }
+
+    method string getHighestScore() {
+        return highestScore;
+    }
+
+    method string getNewHighscore() {
+        return newHighscore;
+    }
+
+    method string getGameOver() {
+        return gameOver;
+    }
+
+    method string getSelectLevel() {
+        return selectLevel;
+    }
+
+    method string getEasy() {
+        return easy;
+    }
+
+    method string getNormal() {
+        return normal;
+    }
+
+    method string getHard() {
+        return hard;
+    }
+
+    method string getImpossible() {
+        return impossible;
+    }
+
+    method string getEasyMenu() {
+        return easyMenu;
+    }
+
+    method string getNormalMenu() {
+        return normalMenu;
+    }
+
+    method string getHardMenu() {
+        return hardMenu;
+    }
+
+    method string getImpossibleMenu() {
+        return impossibleMenu;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+}

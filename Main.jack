@@ -1,0 +1,19 @@
+class Main {
+    function void main() {
+        var GameLabels gameLabels;
+        var LevelSelector levelSelector;
+        var Level currentLevel;
+        var Game game;
+        let gameLabels = GameLabels.new();
+        let levelSelector = LevelSelector.new(gameLabels);
+
+        while (true) {
+            let currentLevel = levelSelector.select();
+            let game = Game.new(currentLevel, gameLabels);
+            do game.run();
+            do game.dispose();
+        }
+
+        return;
+    }
+}

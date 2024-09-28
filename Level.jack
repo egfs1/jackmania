@@ -1,0 +1,40 @@
+class Level {
+    field int framesToUpdate;
+    field int framesToSpawnNote;
+    field int highestScore;
+    field string labelName;
+
+    constructor Level new(int _framesToUpdate, int _framesToSpawnNote, string _labelName){
+        let framesToUpdate = _framesToUpdate;
+        let framesToSpawnNote = _framesToSpawnNote;
+        let highestScore = 0;
+        let labelName = _labelName;
+        return this;
+    }
+
+    method int getHighestScore() {
+        return highestScore;
+    }
+
+    method void setHighestScore(int _highestScore) {
+        let highestScore = _highestScore;
+        return;
+    }
+
+    method int getFramesToUpdate() {
+        return framesToUpdate;
+    }
+
+    method int getFramesToSpawnNote() {
+        return framesToSpawnNote;
+    }
+
+    method strign getLabelName() {
+        return labelName;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+}

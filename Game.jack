@@ -1,0 +1,240 @@
+class Game {
+    field GameLabels gameLabels;
+    field Level level;
+    field Array columns;
+    field int columnSize;
+    field int rowSize;
+    field int score;
+    field int currentHighestScore;
+    field int updateCounter;
+    field int noteSpawnCounter;
+    field int seed;
+    field boolean isOver;
+
+    constructor Game new(Level _level, GameLabels _gameLabels) {
+        let gameLabels = _gameLabels;
+        let level = _level;
+        let columnSize = 4;
+        let rowSize = 12;
+        let columns = initColumns(columnSize, rowSize);
+        let score = 0;
+        let currentHighestScore = level.getHighestScore();
+        let updateCounter = 1;
+        let noteSpawnCounter = 1;
+        let seed = 1234;
+        let isOver = false;
+        return this;
+    }
+
+    method Array initColumns(int columnSize, int rowSize) {
+        var int columnIndex, rowIndex;
+        var Array columns, rows;
+        let columnIndex = 0;
+        let columns = Array.new(columnSize);
+        while (columnIndex < columnSize) {
+            let rows = Array.new(rowSize);
+            let rowIndex = 0;
+            while (rowIndex < rowSize) {
+                let rows[rowIndex] = -1;
+                let rowIndex = rowIndex + 1;
+            }
+            let columns[columnIndex] = rows;
+            let columnIndex = columnIndex + 1;
+        }
+        return columns;
+    }
+
+    method void run() {
+        while(~isOver) {
+            if (updateCounter = level.getFramesToUpdate()) {
+                do moveNotes();
+                if (noteSpawnCounter = level.getFramesToSpawnNote()) {
+                    do spawnNote();
+                    let noteSpawnCounter = 0;
+                }
+                do render();
+                let updateCounter = 0;
+            }
+            do checkInput();
+            let updateCounter = updateCounter + 1;
+            let noteSpawnCounter = noteSpawnCounter + 1;
+            do Sys.wait(1);
+        }
+        do gameOver();
+        return;
+    }
+
+    method void render() {
+        do Screen.clearScreen();
+        do drawNotes();
+        do drawJudgmentLine();
+        do drawKeyLabels();
+        do drawScore();
+        return;
+    }
+
+    method void drawJudgmentLine() {
+        do Screen.drawLine(0, 220, 160, 220);
+        do Screen.drawLine(160, 0, 160, 255);
+        do Screen.drawLine(40, 220, 40, 255);
+        do Screen.drawLine(80, 220, 80, 255);
+        do Screen.drawLine(120, 220, 120, 255);
+        return;
+    }
+
+    method void drawKeyLabels() {
+        do Output.moveCursor(22, 2);
+        do Output.printString(gameLabels.getAKey());
+        do Output.moveCursor(22, 7);
+        do Output.printString(gameLabels.getSKey());
+        do Output.moveCursor(22, 12);
+        do Output.printString(gameLabels.getDKey());
+        do Output.moveCursor(22, 17);
+        do Output.printString(gameLabels.getFKey());
+        return;
+    }
+
+    method void drawScore() {
+        do Output.moveCursor(10, 27);
+        do Output.printString(level.getLabelName());
+        do Output.moveCursor(11, 27);
+        do Output.printString(gameLabels.getScore());
+        do Output.moveCursor(11, 34);
+        do Output.printInt(score);
+        do Output.moveCursor(12, 27);
+        do Output.printString(gameLabels.getHighestScore());
+        do Output.moveCursor(12, 42);
+        do Output.printInt(currentHighestScore);
+        return;
+    }
+
+    method void moveNotes() {
+        var int columnIndex, rowIndex;
+        var Array rows;
+        let columnIndex = 0;
+        while (columnIndex < columnSize) {
+            let rows = columns[columnIndex];
+            let rowIndex = rowSize - 1;
+            if (rows[rowIndex] = 1) {
+                let isOver = true;
+                return;
+            }
+            while (rowIndex > 0) {
+                let rows[rowIndex] = rows[rowIndex - 1];
+                let rowIndex = rowIndex - 1;
+            }
+            let rows[0] = -1;
+            let columns[columnIndex] = rows;
+            let columnIndex = columnIndex + 1;
+        }
+        return;
+    }
+
+    method void checkInput() {
+        var char key;
+        let key = Keyboard.keyPressed();
+        if (key = 65) {
+            do checkNoteHit(0);
+            let seed = noteSpawnCounter + 65;
+        }
+        if (key = 83) {
+            do checkNoteHit(1);
+            let seed = noteSpawnCounter + 83;
+        }
+        if (key = 68) {
+            do checkNoteHit(2);
+            let seed = noteSpawnCounter + 68;
+        }
+        if (key = 70) {
+            do checkNoteHit(3);
+            let seed = noteSpawnCounter + 70;
+        }
+        return;
+    }
+
+    method void checkNoteHit(int column) {
+        var int value;
+        var Array rows;
+        let rows = columns[column];
+        let value = rows[rowSize - 2];
+        if (value = 1) {
+            let score = score + 1;
+            if (score > currentHighestScore) {
+                let currentHighestScore = score;
+            }
+            let rows[rowSize - 2] = -1;
+            let columns[column] = rows;
+        }
+        return;
+    }
+
+    method void drawNotes() {
+        var Array rows;
+        var int columnIndex, rowIndex, x, y;
+        let columnIndex = 0;
+        while (columnIndex < columnSize) {
+            let rows = columns[columnIndex];
+            let x = columnIndex * 40;
+            let rowIndex = 0;
+            while (rowIndex < rowSize) {
+                let y = 5 + (rowIndex * 20);
+                if (rows[rowIndex] = 1) {
+                    do Screen.drawRectangle(x, y, x + 40, y + 15);
+                }
+                let rowIndex = rowIndex + 1;
+            }
+            let columnIndex = columnIndex + 1;
+        }
+        return;
+    }
+
+    method void insertNote(int rowIndex, int columnIndex) {
+        var Array rows;
+        let rows = columns[columnIndex];
+        let rows[rowIndex] = 1;
+        let columns[columnIndex] = rows;
+        return;
+    }
+
+    method void spawnNote() {
+        var int columnIndex;
+        let seed = seed + 7;
+        do Random.setSeed(seed);
+        let columnIndex = Random.randRange(3);
+        do insertNote(0, columnIndex);
+        return;
+    }
+
+    method void gameOver() {
+        do Screen.clearScreen();
+        do Output.moveCursor(10, 27);
+        do Output.printString(gameLabels.getGameOver());
+        do Output.moveCursor(11, 27);
+        do Output.printString(gameLabels.getFinalScore());
+        do Output.moveCursor(11, 40);
+        do Output.printInt(score);
+        do Output.moveCursor(12, 27);
+        do Output.printString(gameLabels.getHighestScore());
+        do Output.moveCursor(12, 42);
+        if (currentHighestScore > level.getHighestScore()) {
+            do Output.printString(gameLabels.getNewHighscore());
+            do Output.moveCursor(12, 48);
+            do level.setHighestScore(currentHighestScore);
+        }
+        do Output.printInt(currentHighestScore);
+        do Sys.wait(3000);
+        return;
+    }
+
+    method void dispose() {
+        var int columnIndex;
+        let columnIndex = 0;
+        while (columnIndex < columnSize) {
+            do Memory.deAlloc(columns[columnIndex]);
+            let columnIndex = columnIndex + 1;
+        }
+        do Memory.deAlloc(columns);
+        do Memory.deAlloc(this);
+        return;
+    }
+}
